@@ -4,6 +4,16 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://agarwalshaan27:g5p3vCbP1ZbcsdCX@cluster0.vtjmyy6.mongodb.net/backend?retryWrites=true&w=majority
+  jackson:
+    default-property-inclusion: non_null
+  mvc:
+    media-types:
+      json: application/json
 
 server:
   port: 8080
+
+cloudinary:
+  cloud-name: db5ny7ngf
+  api-key: 915834217917354
+  api-secret: 8zTZnh0Hgb6vNs31lpd2Y7Zw_U4
