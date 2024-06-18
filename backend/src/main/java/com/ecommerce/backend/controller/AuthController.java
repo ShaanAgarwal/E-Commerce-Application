@@ -3,6 +3,7 @@ package com.ecommerce.backend.controller;
 import com.ecommerce.backend.dto.LoginDTO;
 import com.ecommerce.backend.dto.UserDTO;
 import com.ecommerce.backend.exception.EmailAlreadyExistsException;
+import com.ecommerce.backend.exception.ForbiddenException;
 import com.ecommerce.backend.exception.InvalidCredentialsException;
 import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.repository.UserRepository;
@@ -68,6 +69,10 @@ public class AuthController {
 
             // Fetch user details by email
             User user = authService.getUserByEmail(loginDTO.getEmail());
+
+            if(!user.getStatus().toString().equals("ACTIVE")) {
+                throw new ForbiddenException("You are not allowed to login in the system");
+            }
 
             // Prepare response with user details and token
             Map<String, Object> response = new HashMap<>();

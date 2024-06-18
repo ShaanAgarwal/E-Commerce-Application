@@ -26,8 +26,12 @@ public class UserController {
         String token = getTokenFromHeader(tokenHeader);
         jwtUtil.validateToken(token);
         String userType = jwtUtil.extractUserType(token);
+        String userStatus = jwtUtil.extractUserStatus(token);
         if (!"ADMIN".equals(userType)) {
             throw new ForbiddenException("Access denied. Only admin users can access this endpoint");
+        }
+        if(!"ACTIVE".equals(userType)) {
+            throw new ForbiddenException("Access denied. You are denied access to this resource");
         }
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);

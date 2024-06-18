@@ -17,10 +17,11 @@ public class JwtUtil {
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
 
-    public String generateToken(String email, String userType) {
+    public String generateToken(String email, String userType, String userStatus) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("userType", userType) // Add userType as a claim
+                .claim("userType", userType)
+                .claim("userStatus", userStatus)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -33,6 +34,10 @@ public class JwtUtil {
 
     public String extractUserType(String token) {
         return (String) extractClaims(token).get("userType");
+    }
+
+    public String extractUserStatus(String token) {
+        return (String) extractClaims(token).get("userStatus");
     }
 
     public boolean validateToken(String token) {

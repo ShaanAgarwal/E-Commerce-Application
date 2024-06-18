@@ -63,7 +63,7 @@ public class AuthService {
         if (!loginDTO.getPassword().equals(user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
-        return jwtUtil.generateToken(user.getEmail(), user.getUserType().toString());
+        return jwtUtil.generateToken(user.getEmail(), user.getUserType().toString(), user.getStatus().toString());
     }
 
     public User getUserByEmail(String email) {
