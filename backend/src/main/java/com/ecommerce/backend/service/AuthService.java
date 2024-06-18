@@ -2,8 +2,10 @@ package com.ecommerce.backend.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ecommerce.backend.dto.LoginDTO;
 import com.ecommerce.backend.dto.UserDTO;
 import com.ecommerce.backend.exception.EmailAlreadyExistsException;
+import com.ecommerce.backend.exception.InvalidCredentialsException;
 import com.ecommerce.backend.model.Photo;
 import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.model.enums.PhotoType;
@@ -36,35 +38,30 @@ public class AuthService {
 
     @Transactional(rollbackFor = Exception.class)
     public User registerUser(UserDTO userDTO, MultipartFile file) throws IOException {
-        // Check if email already exists
         Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
         if (existingUser.isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
-
-        // Create User object
         User user = createUser(userDTO);
-
-        // Save User to generate userId
         User savedUser = userRepository.save(user);
-
-        // Upload photo to Cloudinary
         String photoUrl = uploadPhotoToCloudinary(file);
-
-        // Create Photo object
         Photo photo = createPhoto(photoUrl);
-
-        // Set userId in Photo entity
-        photo.setUserId(savedUser.getId()); // Set the generated userId from savedUser
-
-        // Save Photo
+        photo.setUserId(savedUser.getId());
         Photo savedPhoto = photoRepository.save(photo);
-
-        // Set the saved photo in user and update user
         savedUser.setPhoto(savedPhoto);
         userRepository.save(savedUser);
-
         return savedUser;
+    }
+
+    public User login(LoginDTO loginDTO) {
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+
+        if (!user.getPassword().equals(loginDTO.getPassword())) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
+        return user;
     }
 
     private Photo createPhoto(String photoUrl) {

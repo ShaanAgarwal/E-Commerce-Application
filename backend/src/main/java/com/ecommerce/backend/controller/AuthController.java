@@ -1,7 +1,9 @@
 package com.ecommerce.backend.controller;
 
+import com.ecommerce.backend.dto.LoginDTO;
 import com.ecommerce.backend.dto.UserDTO;
 import com.ecommerce.backend.exception.EmailAlreadyExistsException;
+import com.ecommerce.backend.exception.InvalidCredentialsException;
 import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +50,18 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid JSON for UserDTO"));
         } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
+        try {
+            User user = authService.login(loginDTO);
+            return ResponseEntity.ok(user); // Return the authenticated user
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
