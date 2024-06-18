@@ -20,6 +20,7 @@ public class Photo {
     private PhotoType photoType;
     private Status status;
     private String description;
+    private String userId;
 
     @CreatedDate
     private LocalDateTime createdAt;
