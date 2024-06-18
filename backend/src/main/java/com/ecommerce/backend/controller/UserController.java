@@ -30,7 +30,7 @@ public class UserController {
         if (!"ADMIN".equals(userType)) {
             throw new ForbiddenException("Access denied. Only admin users can access this endpoint");
         }
-        if(!"ACTIVE".equals(userType)) {
+        if(!"ACTIVE".equals(userStatus)) {
             throw new ForbiddenException("Access denied. You are denied access to this resource");
         }
         List<User> users = userService.getAllUsers();
