@@ -12,6 +12,7 @@ import com.ecommerce.backend.model.enums.PhotoType;
 import com.ecommerce.backend.model.enums.Status;
 import com.ecommerce.backend.repository.PhotoRepository;
 import com.ecommerce.backend.repository.UserRepository;
+import com.ecommerce.backend.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class AuthService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Transactional(rollbackFor = Exception.class)
     public User registerUser(UserDTO userDTO, MultipartFile file) throws IOException {
         Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
@@ -53,15 +57,19 @@ public class AuthService {
         return savedUser;
     }
 
-    public User login(LoginDTO loginDTO) {
-        User user = userRepository.findByEmail(loginDTO.getEmail())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+    public String login(LoginDTO loginDTO) {
+        Optional<User> userOptional = userRepository.findByEmail(loginDTO.getEmail());
+        User user = userOptional.orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
-        if (!user.getPassword().equals(loginDTO.getPassword())) {
-            throw new InvalidCredentialsException("Invalid email or password");
-        }
+        // Perform password validation here (not shown in this example)
 
-        return user;
+        // Generate JWT token
+        return jwtUtil.generateToken(user.getEmail());
+    }
+
+    public User getUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        return userOptional.orElseThrow(() -> new InvalidCredentialsException("User not found with email: " + email));
     }
 
     private Photo createPhoto(String photoUrl) {

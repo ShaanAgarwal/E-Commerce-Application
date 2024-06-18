@@ -5,6 +5,7 @@ import com.ecommerce.backend.dto.UserDTO;
 import com.ecommerce.backend.exception.EmailAlreadyExistsException;
 import com.ecommerce.backend.exception.InvalidCredentialsException;
 import com.ecommerce.backend.model.User;
+import com.ecommerce.backend.repository.UserRepository;
 import com.ecommerce.backend.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -24,6 +26,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -58,8 +63,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
         try {
-            User user = authService.login(loginDTO);
-            return ResponseEntity.ok(user); // Return the authenticated user
+            // Authenticate user and generate JWT token
+            String token = authService.login(loginDTO);
+
+            // Fetch user details by email
+            User user = authService.getUserByEmail(loginDTO.getEmail());
+
+            // Prepare response with user details and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", user);
+
+            return ResponseEntity.ok(response);
         } catch (InvalidCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {

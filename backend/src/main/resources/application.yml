@@ -17,3 +17,7 @@ cloudinary:
   cloud-name: db5ny7ngf
   api-key: 915834217917354
   api-secret: 8zTZnh0Hgb6vNs31lpd2Y7Zw_U4
+
+jwt:
+  secret: your_jwt_secret_key_here
+  expiration-ms: 86400000 # Example: 24 hours
