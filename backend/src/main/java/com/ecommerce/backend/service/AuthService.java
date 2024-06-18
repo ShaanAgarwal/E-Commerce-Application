@@ -60,10 +60,9 @@ public class AuthService {
     public String login(LoginDTO loginDTO) {
         Optional<User> userOptional = userRepository.findByEmail(loginDTO.getEmail());
         User user = userOptional.orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
-
-        // Perform password validation here (not shown in this example)
-
-        // Generate JWT token
+        if (!loginDTO.getPassword().equals(user.getPassword())) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
         return jwtUtil.generateToken(user.getEmail());
     }
 
