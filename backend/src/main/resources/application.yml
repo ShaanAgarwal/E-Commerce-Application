@@ -20,4 +20,4 @@ cloudinary:
 
 jwt:
   secret: your_jwt_secret_key_here
-  expiration-ms: 60000
+  expiration-ms: 86400000

@@ -9,7 +9,6 @@ import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.repository.UserRepository;
 import com.ecommerce.backend.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/user/auth")
 public class AuthController {

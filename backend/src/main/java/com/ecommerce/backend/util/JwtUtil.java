@@ -1,5 +1,7 @@
 package com.ecommerce.backend.util;
 
+import com.ecommerce.backend.exception.ForbiddenException;
+import com.ecommerce.backend.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -46,6 +48,25 @@ public class JwtUtil {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public String getTokenFromHeader(String tokenHeader) {
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Unauthorized. Missing or invalid Authorization header");
+        }
+        return tokenHeader.substring(7);
+    }
+
+    public void validateAdminAccess(String token) {
+        String userType = extractUserType(token);
+        String userStatus = extractUserStatus(token);
+
+        if (!"ADMIN".equals(userType)) {
+            throw new ForbiddenException("Access denied. Only admin users can access this endpoint");
+        }
+        if (!"ACTIVE".equals(userStatus)) {
+            throw new ForbiddenException("Access denied. You are denied access to this resource");
         }
     }
 

@@ -39,4 +39,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.put("error", e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(UserDoesNotExistException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFoundException(Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }

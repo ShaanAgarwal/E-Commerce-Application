@@ -2,6 +2,7 @@ package com.ecommerce.backend.controller;
 
 import com.ecommerce.backend.exception.ForbiddenException;
 import com.ecommerce.backend.exception.UnauthorizedException;
+import com.ecommerce.backend.exception.UserDoesNotExistException;
 import com.ecommerce.backend.model.User;
 import com.ecommerce.backend.service.UserService;
 import com.ecommerce.backend.util.JwtUtil;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,24 +25,25 @@ public class UserController {
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String tokenHeader) {
-        String token = getTokenFromHeader(tokenHeader);
+        String token = jwtUtil.getTokenFromHeader(tokenHeader);
         jwtUtil.validateToken(token);
-        String userType = jwtUtil.extractUserType(token);
-        String userStatus = jwtUtil.extractUserStatus(token);
-        if (!"ADMIN".equals(userType)) {
-            throw new ForbiddenException("Access denied. Only admin users can access this endpoint");
-        }
-        if(!"ACTIVE".equals(userStatus)) {
-            throw new ForbiddenException("Access denied. You are denied access to this resource");
-        }
+        jwtUtil.validateAdminAccess(token);
+
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    private String getTokenFromHeader(String tokenHeader) {
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
-            throw new UnauthorizedException("Unauthorized. Missing or invalid Authorization header");
+    @GetMapping("/getSingleUser/{userId}")
+    public ResponseEntity<?> getSingleUser(@RequestHeader("Authorization") String tokenHeader, @PathVariable("userId") String userId) {
+        String token = jwtUtil.getTokenFromHeader(tokenHeader);
+        jwtUtil.validateToken(token);
+        jwtUtil.validateAdminAccess(token);
+
+        Optional<User> user = userService.getUserById(userId);
+        if (user.isEmpty()) {
+            throw new UserDoesNotExistException("User with the given userId does not exist.");
         }
-        return tokenHeader.substring(7);
+
+        return ResponseEntity.ok(user.get());
     }
 }
