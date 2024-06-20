@@ -1,18 +1,22 @@
 package com.ecommerce.backend.service;
 
 import com.ecommerce.backend.dto.SellerDTO;
+import com.ecommerce.backend.dto.SellerInfoDTO;
 import com.ecommerce.backend.exception.ForbiddenException;
 import com.ecommerce.backend.exception.InvalidCredentialsException;
 import com.ecommerce.backend.exception.UserAlreadyExistsException;
 import com.ecommerce.backend.exception.UserDoesNotExistException;
 import com.ecommerce.backend.model.Seller;
 import com.ecommerce.backend.model.User;
+import com.ecommerce.backend.model.enums.UserType;
 import com.ecommerce.backend.repository.SellerRepository;
 import com.ecommerce.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,6 +34,32 @@ public class SellerService {
         validateUserIsSeller(user);
         checkIfSellerAlreadyExists(id);
         return createAndSaveSeller(id, seller);
+    }
+
+    public List<SellerInfoDTO> getAllSellers() {
+        List<User> sellers = userRepository.findByUserType(UserType.SELLER);
+        List<SellerInfoDTO> sellerInfoList = new ArrayList<>();
+
+        for (User seller : sellers) {
+            Optional<Seller> optionalSeller = sellerRepository.findById(seller.getId());
+            if (optionalSeller.isPresent()) {
+                Seller sellerEntity = optionalSeller.get();
+                SellerInfoDTO sellerInfoDTO = new SellerInfoDTO(
+                        seller.getId(),
+                        seller.getFirstName(),
+                        seller.getLastName(),
+                        seller.getEmail(),
+                        sellerEntity.getCompanyName(),
+                        sellerEntity.getAddress(),
+                        seller.getStatus(),
+                        seller.getCreatedAt(),
+                        seller.getUpdatedAt()
+                );
+                sellerInfoList.add(sellerInfoDTO);
+            }
+        }
+
+        return sellerInfoList;
     }
 
     private void validateSellerDTO(SellerDTO seller) {
